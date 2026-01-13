@@ -1,0 +1,27 @@
+name: Sync Branches
+on:
+  push:
+    branches: [main]
+
+jobs:
+  back-propagate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.BOT_GITHUB_TOKEN }}
+      - name: Set Git Identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Merge Main to Canary
+        run: |
+          git checkout canary
+          git merge origin/main --no-ff -m "Sync: Main to Canary [skip ci]"
+          git push origin canary
+      - name: Merge Main to Develop
+        run: |
+          git checkout develop
+          git merge origin/main --no-ff -m "Sync: Main to Develop [skip ci]"
+          git push origin develop
